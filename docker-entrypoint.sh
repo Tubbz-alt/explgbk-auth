@@ -7,9 +7,11 @@ rm -rf /run/httpd/* /tmp/httpd*
 
 # server names and admin
 export SERVER_NAME="${SERVER_NAME:-localhost}"
-sed -i "s#ServerName localhost#ServerName ${SERVER_NAME}#g" /etc/httpd/conf.d/explgbk.conf
+sed -i "s/ServerName localhost/ServerName ${SERVER_NAME}/g" /etc/httpd/conf/httpd.conf
+sed -i "s/# ServerName localhost/ServerName ${SERVER_NAME}/g" /etc/httpd/conf.d/explgbk.conf
 export SERVER_ADMIN="${SERVER_ADMIN:-admin@localhost.com}"
-sed -i "s#ServerAdmin admin@localhost.com#ServerAdmin ${SERVER_ADMIN}#g" /etc/httpd/conf.d/explgbk.conf
+sed -i "s/ServerAdmin admin@localhost.com/ServerAdmin ${SERVER_ADMIN}/g" /etc/httpd/conf/httpd.conf
+sed -i "s/# ServerAdmin admin@localhost.com/ServerAdmin ${SERVER_ADMIN}/g" /etc/httpd/conf.d/explgbk.conf
 
 # proxy settings
 export PROXY_HOST="${PROXY_HOST:-localhost}"
@@ -18,12 +20,25 @@ export PROXY_WS_PORT="${PROXY_WS_PORT:-5000}"
 sed -i "s#http://explgbk:8000/#http://${PROXY_HOST}:${PROXY_PORT}/#g" /etc/httpd/conf.d/explgbk.conf
 sed -i "s#ws://explgbk:5000/#ws://${PROXY_HOST}:${PROXY_WS_PORT}/#g" /etc/httpd/conf.d/explgbk.conf
 
+# redirect
+export HTTPS_REDIRECT="${HTTPS_REDIRECT:-https://localhost/}"
+sed -i "s#Redirect permanent / https://localhost/#Redirect permanent / ${HTTPS_REDIRECT}/#g" /etc/httpd/conf.d/explgbk.conf
+
+
 # webauth
 export WEBAUTH_LOGIN_URL="${WEBAUTH_LOGIN_URL:-https://webauth1.slac.stanford.edu/login/}"
 sed -i "s#WebAuthLoginURL \"WEBAUTH_LOGIN_URL\"#WebAuthLoginURL \"${WEBAUTH_LOGIN_URL}\"#g" /etc/httpd/conf.d/webauth.conf
 export WEBAUTH_WEBKDC_URL="${WEBAUTH_WEBKDC_URL:-https://webauth1.slac.stanford.edu/webkdc-service/}"
 sed -i "s#WebAuthWebKdcURL \"WEBAUTH_WEBKDC_URL\"#WebAuthWebKdcURL \"${WEBAUTH_WEBKDC_URL}\"#g" /etc/httpd/conf.d/webauth.conf
 
+if [[ ! -z "${REQUIRE_VALID_USER}" ]]; then
+  sed -i "s/# require valid-user/ require valid-user/g" /etc/httpd/conf.d/explgbk.conf
+fi
+
+if [[ ! -z "${USE_WEBAUTH}" ]]; then
+  sed -i "s/# WebAuthExtraRedirect on/WebAuthExtraRedirect on/g" /etc/httpd/conf.d/explgbk.conf
+  sed -i "s/# AuthType WebAuth/AuthType WebAuth/g" /etc/httpd/conf.d/explgbk.conf
+fi
 
 if [[ ! -z "${GENERATE_DUMMY_CERTS}" ]]; then
   
