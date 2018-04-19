@@ -33,13 +33,15 @@ RUN set -ex \
     && chmod g+rwx /var/lib/webauth
 
 # copy httpd configs
-COPY conf/httpd/conf.d/explgbk.conf /etc/httpd/conf.d/explgbk.conf
 COPY conf/httpd/conf.d/webauth.conf /etc/httpd/conf.d/webauth.conf
 COPY conf/httpd/conf.d/webauth-load.conf /etc/httpd/conf.d/webauth-load.conf
 COPY conf/krb5.conf /etc/krb5.conf
 
 # copy empty cert files: use docker bind mounts to overwrite
 COPY conf/httpd/certs /etc/httpd/certs
+
+# copy app config
+COPY conf/httpd/conf.d/explgbk.conf /etc/httpd/conf.d/explgbk.conf
 
 ADD docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod -v +x /docker-entrypoint.sh
