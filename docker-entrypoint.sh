@@ -5,6 +5,9 @@
 # if it thinks it is already running.
 rm -rf /run/httpd/* /tmp/httpd*
 
+ln -sf /etc/httpd/certs/cert.crt /etc/pki/tls/certs/localhost.crt
+ln -sf /etc/httpd/certs/cert.key /etc/pki/tls/private/localhost.key
+
 # server names and admin
 export SERVER_NAME="${SERVER_NAME:-localhost}"
 sed -i "s/ServerName localhost/ServerName ${SERVER_NAME}/g" /etc/httpd/conf/httpd.conf
@@ -69,5 +72,6 @@ if [[ ! -z "${FAKE_AUTH}" ]]; then
   sed -i "s/\#SetEnv WEBAUTH_FACTORS_SESSION p/SetEnv WEBAUTH_FACTORS_SESSION p/g" /etc/httpd/conf.d/explgbk.conf  
 fi
 
+/usr/sbin/apachectl -V
 
 exec /usr/sbin/apachectl -DFOREGROUND
