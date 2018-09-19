@@ -1,15 +1,19 @@
 FROM centos:7
 
-
 MAINTAINER Yee-Ting Li <ytl@slac.stanford.edu>
 
 ENV buildDeps git make gcc-c++ readline-devel ncurses-devel libcurl-devel httpd-devel openssl-devel krb5-devel
 
-RUN yum -y --setopt=tsflags=nodocs update && \
-    yum -y --setopt=tsflags=nodocs install httpd openssl && \
-    yum -y --setopt=tsflags=nodocs install libtool httpd-tools mod_ssl perl-autodie perl-Readonly $buildDeps \
-    yum clean all
+RUN yum -y --setopt=tsflags=nodocs install wget \
+      && cd /etc/yum.repos.d \
+      && wget https://repo.codeit.guru/codeit.el`rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release)`.repo \
+      && yum -y remove wget
 
+RUN yum -y --setopt=tsflags=nodocs install epel-release \
+      && yum -y --setopt=tsflags=nodocs update \
+      && yum -y --setopt=tsflags=nodocs install httpd openssl \
+      && yum -y --setopt=tsflags=nodocs install libtool httpd-tools mod_ssl perl-autodie perl-Readonly $buildDeps \
+      && yum clean all
 
 COPY conf/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf
 COPY conf/httpd/conf/magic /etc/httpd/conf/magic
@@ -27,10 +31,8 @@ RUN set -ex \
 # RUN yum -y remove $buildDeps
 
 # prep directories
-RUN set -ex \
-    && mkdir /var/lib/webauth \
-    && chgrp apache /var/lib/webauth \
-    && chmod g+rwx /var/lib/webauth
+RUN mkdir /var/lib/webauth \
+    && chown apache:apache /var/lib/webauth 
 
 # copy httpd configs
 COPY conf/httpd/conf.d/webauth.conf /etc/httpd/conf.d/webauth.conf
