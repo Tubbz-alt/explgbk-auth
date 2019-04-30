@@ -45,6 +45,9 @@ COPY conf/httpd/certs /etc/httpd/certs
 # copy app config
 COPY conf/httpd/conf.d/explgbk.conf /etc/httpd/conf.d/explgbk.conf
 
+# index redirect
+COPY index.html /var/www/html/index.html
+
 ADD docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod -v +x /docker-entrypoint.sh
 
